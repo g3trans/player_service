@@ -6,7 +6,7 @@ const tableName = process.env.DATABASE_TABLE_NAME;
 const MAX_GET_PLAYERS_PAGE_SIZE = 200
 const DEFAULT_GET_PLAYERS_PAGE_SIZE = 50
 
-const getPlayersIntegration = async (event) => {
+const getPlayers = async (event) => {
   try {
     const pageSize = parseInt(event.queryStringParameters && event.queryStringParameters.pageSize) || DEFAULT_GET_PLAYERS_PAGE_SIZE;
 
@@ -38,7 +38,27 @@ const getPlayersIntegration = async (event) => {
   }
 };
 
-const getPlayerByIdIntegration = async (event) => {
+const getPlayersBetweenLastNames = async (event) => {
+  const lastNameStart = event.queryStringParameters && event.queryStringParameters.lastNameStart;
+  const lastNameEnd = event.queryStringParameters && event.queryStringParameters.lastNameEnd;
+
+  const params = {
+    TableName: tableName,
+    KeyConditionExpression: "#nameLast BETWEEN :lastNameStartValue AND :lastNameEndValue",
+    ExpressionAttributeNames: {
+      "#nameLast": "nameLast"
+    },
+    ExpressionAttributeValues: {
+      ":lastNameStartValue": lastNameStart,
+      ":lastNameEndValue": lastNameEnd
+    }
+  };
+
+  const result = await dynamoDB.query(params).promise();
+  return result.Items?.map((item) => item);
+}
+
+const getPlayerById = async (event) => {
   try {
     const playerId = event.pathParameters.playerID;
     if (!playerId) {
@@ -84,11 +104,17 @@ const getPlayerByIdIntegration = async (event) => {
 
 const getPlayersPath = "/api/players"
 const getPlayerByIdPath = "/api/players/"
+const getPlayersBetweenLastNamesPath = "/api/playersbetweenlastnames"
 
 exports.handler = async (event) => {
-  if(event.path.includes(getPlayerByIdPath)) {
-    return getPlayerByIdIntegration(event);
+  if(event.path.includes(getPlayersBetweenLastNamesPath)) {
+    return {
+      statusCode: 500,
+      body: 'API under maintenance',
+    };
+  } else if(event.path.includes(getPlayerByIdPath)) {
+    return getPlayerById(event);
   } else if(event.path.includes(getPlayersPath)) {
-    return getPlayersIntegration(event);
+    return getPlayers(event);
   }
 };

@@ -9,6 +9,7 @@ https://ak83tq3vnf.execute-api.us-east-1.amazonaws.com/devo/api/players/bellmi01
 - Unfortunately dynamodb scan doesn't return sorted results, for pagination we require the composite Primary/Sorted LastEvaluatedKey returned from get players
 https://ak83tq3vnf.execute-api.us-east-1.amazonaws.com/devo/api/players?exclusiveStartKeyPlayerID=bergmch01&exclusiveStartKeyNameLast=Bergman
 - (Gal: I would've liked to switch from DDB to SQL based, and then implement additional APIs for complex queries which would be more efficient than on ddb.
+- (GSIs are supposedly expensive)
 
 ### Database appears to be baseball players 
 - It's likely that traffic for obtaining statistics about the players will not be uniformly distributed. So ideally we'll have caching and need to consider DDB / Redis for risks of hot partitions..

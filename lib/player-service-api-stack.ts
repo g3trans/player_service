@@ -20,7 +20,6 @@ export class PlayerServiceAPIStack extends NestedStack {
         const playerServiceLambda = new Function(this, stackName + 'Handler', {
             runtime: Runtime.NODEJS_16_X,
             handler: 'playerservice.handler',
-            //code: Code.fromAsset(path.join(__dirname, '../lambda')),
             code: Code.fromAsset('lambda'),
             environment: {
                 DATABASE_TABLE_NAME: props.databaseTable.tableName
@@ -45,11 +44,14 @@ export class PlayerServiceAPIStack extends NestedStack {
         const apiRoot: Resource = api.root.addResource('api');
         const players = apiRoot.addResource('players');
         const playerById = players.addResource('{playerID}');
+        const playersBetweenLastNames = apiRoot.addResource('playersbetweenlastnames');
 
         const getPlayersIntegration = new LambdaIntegration(playerServiceLambda);
         const getPlayerByIdIntegration = new LambdaIntegration(playerServiceLambda);
+        const playersBetweenLastNamesIntegration = new LambdaIntegration(playerServiceLambda);
 
         players.addMethod('GET', getPlayersIntegration);
         playerById.addMethod('GET', getPlayerByIdIntegration);
+        playersBetweenLastNames.addMethod('GET', playersBetweenLastNamesIntegration);
     }
 }
